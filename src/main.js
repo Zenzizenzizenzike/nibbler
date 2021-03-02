@@ -258,6 +258,7 @@ function menu_build() {
 				},
 				{
 					label: "Load PGN from clipboard",
+					accelerator: "CommandOrControl+Shift+V",
 					click: () => {
 						win.webContents.send("call", {
 							fn: "load_pgn_from_string",
@@ -575,14 +576,14 @@ function menu_build() {
 					}
 				},
 				{
-					label: "Previous sibling",
+					label: "Previous Sibling",
 					accelerator: "Up",
 					click: () => {
 						win.webContents.send("call", "previous_sibling");
 					}
 				},
 				{
-					label: "Next sibling",
+					label: "Next Sibling",
 					accelerator: "Down",
 					click: () => {
 						win.webContents.send("call", "next_sibling");
@@ -730,6 +731,7 @@ function menu_build() {
 				},
 				{
 					label: "Clear focus",
+					accelerator: "Shift+I",
 					click: () => {
 						win.webContents.send("call", "clear_searchmoves");
 					}
@@ -831,6 +833,7 @@ function menu_build() {
 				{
 					label: "Arrows",
 					type: "checkbox",
+					accelerator: "Shift+A",
 					checked: config.arrows_enabled,
 					click: () => {
 						win.webContents.send("call", {
@@ -1398,26 +1401,28 @@ function menu_build() {
 							}
 						},
 						{
-							label: "18",
-							type: "checkbox",
-							checked: config.info_font_size === 18,
-							click: () => {
-								set_checks("Sizes", "Infobox font", "18");
-								win.webContents.send("call", {
-									fn: "set_info_font_size",
-									args: [18],
-								});
-							}
-						},
-						{
 							label: "16",
 							type: "checkbox",
 							checked: config.info_font_size === 16,
+							accelerator: "CommandorControl+Shift+S",
 							click: () => {
 								set_checks("Sizes", "Infobox font", "16");
 								win.webContents.send("call", {
 									fn: "set_info_font_size",
 									args: [16],
+								});
+							}
+						},
+						{
+							label: "0",
+							type: "checkbox",
+							checked: config.info_font_size === 0,
+							accelerator: "CommandorControl+Shift+H",
+							click: () => {
+								set_checks("Sizes", "Infobox font", "0");
+								win.webContents.send("call", {
+									fn: "set_info_font_size",
+									args: [0],
 								});
 							}
 						},
@@ -1901,6 +1906,7 @@ function menu_build() {
 				},
 				{
 					label: "Choose weights file...",
+					accelerator: "CommandorControl+E",
 					click: () => {
 						let files = open_dialog({
 							defaultPath: config.weights_dialog_folder,
@@ -3188,19 +3194,19 @@ function menu_build() {
 								set_checks("Dev", "Spin rate", "Normal");
 								win.webContents.send("set", {
 									key: "update_delay",
-									value: 125,
+									value: 300,
 								});
 							}
 						},
 						{
 							label: "Relaxed",
 							type: "checkbox",
-							checked: config.update_delay === 170,
+							checked: config.update_delay === 200,
 							click: () => {
 								set_checks("Dev", "Spin rate", "Relaxed");
 								win.webContents.send("set", {
 									key: "update_delay",
-									value: 170,
+									value: 200,
 								});
 							}
 						},
