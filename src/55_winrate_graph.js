@@ -165,9 +165,9 @@ function NewGrapher() {
 
 		let x = Math.floor(width * node.depth / node.graph_length_knower.val) + pixel_x_adjustment;
 
-		graphctx.strokeStyle = node.is_main_line() ? "#6cccee" : "#ffff00";
+		graphctx.strokeStyle = node.is_main_line() ? "#399f46e0" : "#f79d6098";
 		graphctx.lineWidth = config.graph_line_width;
-		graphctx.setLineDash([config.graph_line_width, config.graph_line_width]);
+		graphctx.setLineDash([2, 4]);
 
 		graphctx.beginPath();
 		graphctx.moveTo(x, height / 2 + pixel_y_adjustment - config.graph_line_width - 1);

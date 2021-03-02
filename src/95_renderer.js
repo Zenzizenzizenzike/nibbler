@@ -746,27 +746,44 @@ function NewRenderer() {
 
 	renderer.receive_misc = function(s) {
 
-		if (s.startsWith("id name")) {
-			if (!s.includes("Lc0") && !s.includes("Ceres")) {
+		if (s.startsWith("error")) {
+
+			// If this comes at the start, we want to display it in the infobox, but if we're already
+			// drawing the infobox for real, we'll need to flash it up in the status box instead...
+
+			if (this.info_handler.ever_received_info) {
+				this.set_special_message(s, "red");
+			}
+			this.info_handler.err_receive(s);
+
+		} else if (s.startsWith("id name")) {
+
+			if (s.includes("Lc0")) {
+				for (let n = 10; n < messages.min_version; n++) {
+					if (s.includes(`v0.${n}`)) {
+						this.info_handler.err_receive("");
+						this.info_handler.err_receive(`<span class="blue">${messages.obsolete_leela}</span>`);
+						this.info_handler.err_receive("");
+					}
+				}
+			} else {
 				this.info_handler.err_receive(s.slice("id name".length).trim());
 			}
-			return;
-		}
-
-		// Misc messages. Treat ones that aren't valid UCI as errors to be passed along...
-
-		if (!s.startsWith("id") &&
-			!s.startsWith("uciok") &&
-			!s.startsWith("readyok") &&
-			!s.startsWith("option") &&
-			!s.startsWith("bestmove") &&		// These messages shouldn't reach this function
-			!s.startsWith("info")				// These messages shouldn't reach this function
-		) {
-			this.info_handler.err_receive(s);
 		}
 	};
 
 	renderer.err_receive = function(s) {
+
+		// If Leela announces it's using BLAS, adjust some UCI settings that can drastically improve performance.
+		// No longer needed: https://github.com/LeelaChessZero/lc0/commit/2da50185b9581536cc1f5443f27c9c2c4414276f
+		//
+		//	if (config.options.MaxPrefetch === undefined && config.options.MinibatchSize === undefined && s.startsWith("Creating backend [blas]")) {
+		//		this.engine.setoption("MaxPrefetch", 0);
+		//		this.engine.setoption("MinibatchSize", 8);
+		//		this.info_handler.err_receive(s);
+		//		this.info_handler.err_receive(`<span class="blue">${messages.settings_for_blas}</span>`);	// Announces [MaxPrefetch = 0, MinibatchSize = 8]
+		//		return;
+		//	}
 
 		// Some highlights... this is obviously super-fragile based on the precise strings Leela sends.
 

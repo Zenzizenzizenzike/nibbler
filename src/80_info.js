@@ -19,8 +19,8 @@ function NewInfoHandler() {
 	ih.info_clickers = [];					// Elements in the infobox. Updated by draw_infobox().
 
 	ih.special_message = null;
-	ih.special_message_class = "yellow";
-	ih.special_message_timeout = performance.now();
+	ih.special_message_class = null;
+	ih.special_message_time = performance.now();
 
 	ih.last_drawn_board = null;
 	ih.last_drawn_version = null;
@@ -52,7 +52,7 @@ function NewInfoHandler() {
 		if (performance.now() - ih.engine_start_time > 5000 && ih.ever_received_errors === false) {
 			return false;
 		}
-		if (performance.now() - ih.engine_start_time > 20000) {
+		if (performance.now() - ih.engine_start_time > 15000) {
 			return false;
 		}
 
@@ -66,24 +66,22 @@ function NewInfoHandler() {
 		}
 
 		if (this.stderr_log.length > 50000) {
+			console.log(s);
 			return;
 		}
 
 		let s_low = s.toLowerCase();
 
-		if (s_low.includes("warning") || s_low.includes("error") || s_low.includes("unknown") || s_low.includes("failed") || s_low.includes("exception")) {
-			this.ever_received_errors = true;
+		if (s_low.includes("warning") || s_low.includes("error") || s_low.includes("unknown") || s_low.includes("failed")) {
 			this.stderr_log += `<span class="red">${s}</span><br>`;
-			if (this.displaying_stderr() === false) {
-				this.set_special_message(s, "red", 5000);
-			}
+			this.ever_received_errors = true;
 		} else {
 			this.stderr_log += `${s}<br>`;
-			if (this.displaying_stderr() === false) {
-				console.log(s);
-			}
 		}
 
+		if (this.displaying_stderr() === false) {
+			console.log(s);
+		}
 	};
 
 	ih.receive = function(s, node) {
@@ -387,9 +385,9 @@ function NewInfoHandler() {
 
 			statusbox.innerHTML = `<span class="yellow">Awaiting uciok from engine</span>`;
 
-		} else if (this.special_message && performance.now() < this.special_message_timeout) {
+		} else if (this.special_message && performance.now() - this.special_message_time < 3000) {
 
-			statusbox.innerHTML = `<span class="${this.special_message_class}">${this.special_message}</span>`;
+			statusbox.innerHTML = `<span class="${this.special_message_class || "yellow"}">${this.special_message}</span>`;
 
 		} else if (config.show_engine_state) {
 
@@ -451,11 +449,14 @@ function NewInfoHandler() {
 			} else if (config.behaviour === "auto_analysis") {
 				status_string += `<span class="green">Auto-eval! </span>`;
 			} else if (config.behaviour === "analysis_free") {
-				status_string += `<span id="haltbutton_clicker" class="green">ANALYSIS (halt?) </span>`;
+				status_string += ``;
+
+				// I don't like the color of the button. The code I deleted: <span id="haltbutton_clicker" class="black">ANALYSIS (halt?) </span>
+
 				can_have_limit_met_msg = true;
 			}
 
-			status_string += `<span class="gray">Nodes: ${NString(node.table.nodes)}, N/s: ${NString(node.table.nps)}, Time: ${DurationString(node.table.time)}</span>`;
+			status_string += `<span class="white">Nodes: ${NString(node.table.nodes)}, N/s: ${NString(node.table.nps)}, tbhits: ${NString(node.table.tbhits)}, Time: ${DurationString(node.table.time)}</span>`;
 
 			if (can_have_limit_met_msg && typeof config.search_nodes === "number" && node.table.nodes >= config.search_nodes) {
 				status_string += ` <span class="blue">(limit met)</span>`;
@@ -471,7 +472,6 @@ function NewInfoHandler() {
 
 		if (this.displaying_stderr()) {
 			infobox.innerHTML = this.stderr_log;
-			this.last_drawn_version = null;
 			return;
 		}
 
@@ -774,6 +774,10 @@ function NewInfoHandler() {
 						if (n_fraction < config.arrow_filter_value) {
 							good_n = false;
 						}
+
+						if (Math.abs((best_info.cp - info_list[i].cp)/100) > Math.sqrt((Math.abs(best_info.cp/100) + 0.6))) {
+							good_n = false;
+						}
 					}
 				}
 
@@ -950,12 +954,10 @@ function NewInfoHandler() {
 		}
 	};
 
-	ih.set_special_message = function(s, css_class, duration) {
-		if (!css_class) css_class = "yellow";
-		if (!duration) duration = 3000;
+	ih.set_special_message = function(s, css_class) {		// Can leave css_class undefined to use a default.
 		this.special_message = s;
 		this.special_message_class = css_class;
-		this.special_message_timeout = performance.now() + duration;
+		this.special_message_time = performance.now();
 	};
 
 	return ih;

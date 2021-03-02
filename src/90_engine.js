@@ -277,8 +277,8 @@ function NewEngine() {
 			if (this.have_quit) return;
 			debuggo.err_line = debuggo.err_line ? debuggo.err_line + 1 : 1;
 			Log(". " + line);
-			this.hub.err_receive(SafeString(line));
-			debuggo.err_line -= 1;
+			this.hub.err_receive(line);
+			debuggo.err_line -= 1
 		});
 
 		this.scanner.on("line", (line) => {
@@ -296,7 +296,7 @@ function NewEngine() {
 				this.handle_info_line(line);			// Will do logging, possibly adding a reason for rejection.
 			} else {
 				Log("< " + line);
-				this.hub.receive_misc(SafeString(line));
+				this.hub.receive_misc(line);
 			}
 
 			debuggo.line -= 1;

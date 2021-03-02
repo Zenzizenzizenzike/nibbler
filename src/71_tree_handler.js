@@ -86,7 +86,7 @@ let tree_manipulation_props = {
 		if (this.node.parent.children[0] === this.node) {
 			return this.set_node(this.node.parent.children[this.node.parent.children.length - 1]);
 		}
-		for (let i = this.node.parent.children.length - 1; i > 0; i--) {
+		for (let i = this.node.parent.children.length; i > 0; i--) {
 			if (this.node.parent.children[i] === this.node) {
 				return this.set_node(this.node.parent.children[i - 1]);
 			}
@@ -101,7 +101,7 @@ let tree_manipulation_props = {
 		if (this.node.parent.children[this.node.parent.children.length - 1] === this.node) {
 			return this.set_node(this.node.parent.children[0]);
 		}
-		for (let i = 0; i < this.node.parent.children.length - 1; i++) {
+		for (let i = 0; i < this.node.parent.children.length; i++) {
 			if (this.node.parent.children[i] === this.node) {
 				return this.set_node(this.node.parent.children[i + 1]);
 			}
